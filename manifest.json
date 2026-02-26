@@ -1,0 +1,55 @@
+{
+  "manifest_version": "0.3",
+  "name": "huntress-mcp",
+  "version": "1.0.0",
+  "display_name": "Huntress MCP Server",
+  "description": "MCP server for Huntress cybersecurity platform - access agents, organizations, incidents, escalations, billing, and signals through AI assistants",
+  "long_description": "Provides AI assistants with structured access to your Huntress cybersecurity platform data. Manage agents, organizations, incidents, escalations, billing reports, signals, and user memberships through the Model Context Protocol. Features decision-tree navigation, rate limiting, and comprehensive error handling.",
+  "author": {
+    "name": "Aaron Sachs",
+    "url": "https://github.com/asachs01"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wyre-technology/huntress-mcp"
+  },
+  "homepage": "https://github.com/wyre-technology/huntress-mcp",
+  "license": "Apache-2.0",
+  "keywords": ["huntress", "cybersecurity", "edr", "msp", "security", "incidents"],
+  "server": {
+    "type": "node",
+    "entry_point": "dist/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/dist/index.js"],
+      "env": {
+        "HUNTRESS_API_KEY": "${user_config.huntress_api_key}",
+        "HUNTRESS_API_SECRET": "${user_config.huntress_api_secret}",
+        "MCP_TRANSPORT": "stdio"
+      }
+    }
+  },
+  "tools_generated": true,
+  "user_config": {
+    "huntress_api_key": {
+      "type": "string",
+      "title": "Huntress API Key",
+      "description": "Your Huntress API public key",
+      "required": true
+    },
+    "huntress_api_secret": {
+      "type": "string",
+      "title": "Huntress API Secret",
+      "description": "Your Huntress API secret key",
+      "required": true,
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": {
+      "node": ">=18.0.0"
+    },
+    "claude_desktop": ">=0.10.0"
+  }
+}
