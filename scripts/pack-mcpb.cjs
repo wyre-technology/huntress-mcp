@@ -60,7 +60,7 @@ try {
   //    Uses npm ls to identify exactly which packages are production deps,
   //    then copies only those. Avoids SSH/git issues with git dependencies.
   console.log('\n=== Copying production dependencies ===');
-  const prodPaths = execSync('npm ls --production --parseable --all 2>/dev/null', { cwd: ROOT, encoding: 'utf8' })
+  const prodPaths = execSync('npm ls --production --parseable --all 2>/dev/null || true', { cwd: ROOT, encoding: 'utf8' })
     .split('\n')
     .filter(p => p.includes('node_modules'))
     .map(p => p.trim());
