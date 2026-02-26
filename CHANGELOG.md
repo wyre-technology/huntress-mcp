@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/wyre-technology/huntress-mcp/compare/v1.0.1...v1.0.2) (2026-02-26)
+
+
+### Bug Fixes
+
+* rename pack-mcpb to .cjs and handle npm ls exit code ([a47f294](https://github.com/wyre-technology/huntress-mcp/commit/a47f2943c53d90aff7f301d51aad579142536bac))
+
 ## [1.0.1](https://github.com/wyre-technology/huntress-mcp/compare/v1.0.0...v1.0.1) (2026-02-26)
 
 
