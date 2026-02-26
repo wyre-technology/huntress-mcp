@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/wyre-technology/huntress-mcp/compare/v1.0.0...v1.0.1) (2026-02-26)
+
+
+### Bug Fixes
+
+* bump release job to Node 22 (semantic-release requires >=20) ([3afe2d6](https://github.com/wyre-technology/huntress-mcp/commit/3afe2d664d3e15d5f8cceaaa6d770d4fe96e7bde))
+
 # 1.0.0 (2026-02-26)
 
 
