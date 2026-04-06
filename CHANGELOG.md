@@ -1,3 +1,10 @@
+## [1.0.5](https://github.com/wyre-technology/huntress-mcp/compare/v1.0.4...v1.0.5) (2026-04-06)
+
+
+### Bug Fixes
+
+* switch from local file dependency to published @wyre-technology/node-huntress ([7aa08d5](https://github.com/wyre-technology/huntress-mcp/commit/7aa08d59be43b1be2340bea054ebe4de5fca22a0))
+
 ## [1.0.4](https://github.com/wyre-technology/huntress-mcp/compare/v1.0.3...v1.0.4) (2026-04-06)
 
 
