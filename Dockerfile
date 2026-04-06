@@ -5,12 +5,13 @@ FROM node:22-alpine AS builder
 ARG VERSION="unknown"
 ARG COMMIT_SHA="unknown"
 ARG BUILD_DATE="unknown"
+ARG NODE_AUTH_TOKEN
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package files and .npmrc for GitHub Packages auth
+COPY package*.json .npmrc ./
 
 # Install dependencies (--ignore-scripts prevents 'prepare' from running before source is copied)
 RUN npm ci --ignore-scripts
@@ -20,6 +21,12 @@ COPY . .
 
 # Build the application
 RUN npm run build
+
+# Prune dev dependencies in builder stage (while .npmrc auth is still available)
+RUN npm prune --omit=dev
+
+# Remove .npmrc so auth token is not leaked into production image
+RUN rm -f .npmrc
 
 # Production stage
 FROM node:22-alpine AS production
@@ -32,12 +39,9 @@ RUN addgroup -g 1001 -S huntress && \
 WORKDIR /app
 
 # Copy package files and built application from builder stage
-COPY package*.json ./
+COPY --from=builder /app/package.json ./
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
-
-# Prune dev dependencies
-RUN npm prune --omit=dev && npm cache clean --force
 
 # Create logs directory
 RUN mkdir -p /app/logs && chown -R huntress:huntress /app

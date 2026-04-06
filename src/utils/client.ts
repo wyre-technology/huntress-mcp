@@ -1,4 +1,4 @@
-import { HuntressClient } from 'node-huntress';
+import { HuntressClient } from '@wyre-technology/node-huntress';
 import { logger } from './logger.js';
 
 let _client: HuntressClient | null = null;
