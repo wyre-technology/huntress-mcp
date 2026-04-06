@@ -6,9 +6,6 @@ ARG VERSION="unknown"
 ARG COMMIT_SHA="unknown"
 ARG BUILD_DATE="unknown"
 
-# Update npm to latest for security fixes
-RUN npm install -g npm@latest
-
 # Set working directory
 WORKDIR /app
 
@@ -26,9 +23,6 @@ RUN npm run build
 
 # Production stage
 FROM node:22-alpine AS production
-
-# Update npm to latest for security fixes
-RUN npm install -g npm@latest
 
 # Create a non-root user for security
 RUN addgroup -g 1001 -S huntress && \
