@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/wyre-technology/huntress-mcp/compare/v1.0.3...v1.0.4) (2026-04-06)
+
+
+### Bug Fixes
+
+* per-request MCP Server+Transport for gateway compatibility ([0211255](https://github.com/wyre-technology/huntress-mcp/commit/02112559035187a28f0839c5c508aef5befce5a1))
+
 ## [1.0.3](https://github.com/wyre-technology/huntress-mcp/compare/v1.0.2...v1.0.3) (2026-04-06)
 
 
