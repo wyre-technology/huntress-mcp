@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/wyre-technology/huntress-mcp/compare/v1.0.2...v1.0.3) (2026-04-06)
+
+
+### Bug Fixes
+
+* remove npm install -g npm@latest from Dockerfile ([c3ef8aa](https://github.com/wyre-technology/huntress-mcp/commit/c3ef8aafe501c8060640e1a0b7b94ad76b095246))
+
 ## [1.0.2](https://github.com/wyre-technology/huntress-mcp/compare/v1.0.1...v1.0.2) (2026-02-26)
 
 
