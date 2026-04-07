@@ -1,3 +1,10 @@
+## [1.0.7](https://github.com/wyre-technology/huntress-mcp/compare/v1.0.6...v1.0.7) (2026-04-07)
+
+
+### Bug Fixes
+
+* **ci:** deploy :latest tag, force revision via env var bump ([c03b9e7](https://github.com/wyre-technology/huntress-mcp/commit/c03b9e7eea0c48e1f39c92b63859cf4dc478b804))
+
 ## [1.0.6](https://github.com/wyre-technology/huntress-mcp/compare/v1.0.5...v1.0.6) (2026-04-07)
 
 
