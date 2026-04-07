@@ -34,13 +34,11 @@ function startHttpServer(): void {
     if (isGatewayMode) {
       const apiKey = req.headers['x-huntress-api-key'] as string;
       const apiSecret = req.headers['x-huntress-api-secret'] as string;
-      if (!apiKey || !apiSecret) {
-        res.writeHead(401, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Missing credentials' }));
-        return;
+      if (apiKey && apiSecret) {
+        process.env.HUNTRESS_API_KEY = apiKey;
+        process.env.HUNTRESS_API_SECRET = apiSecret;
       }
-      process.env.HUNTRESS_API_KEY = apiKey;
-      process.env.HUNTRESS_API_SECRET = apiSecret;
+      // Don't reject — tools/list works without credentials
     }
 
     // Create fresh server + transport per request (stateless)
