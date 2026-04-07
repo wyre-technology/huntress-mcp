@@ -1,3 +1,10 @@
+## [1.0.6](https://github.com/wyre-technology/huntress-mcp/compare/v1.0.5...v1.0.6) (2026-04-07)
+
+
+### Bug Fixes
+
+* list all tools upfront and allow unauthenticated tool discovery ([3a06154](https://github.com/wyre-technology/huntress-mcp/commit/3a06154a674cad78c908b47e044cda750b62cf4c))
+
 ## [1.0.5](https://github.com/wyre-technology/huntress-mcp/compare/v1.0.4...v1.0.5) (2026-04-06)
 
 
