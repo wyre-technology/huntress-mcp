@@ -5,6 +5,7 @@ import { getDomainHandler } from './domains/index.js';
 import { getCredentials } from './utils/client.js';
 import { logger } from './utils/logger.js';
 import type { DomainName } from './utils/types.js';
+import { registerPromptHandlers } from './prompts.js';
 
 export function createServer(): Server {
   const server = new Server(
@@ -13,9 +14,13 @@ export function createServer(): Server {
       capabilities: {
         tools: {},
         logging: {},
+        prompts: {},
       },
     }
   );
+
+  // Register prompt handlers
+  registerPromptHandlers(server);
 
   // Return ALL tools upfront — navigation is a stateless help/discovery tool
   server.setRequestHandler(ListToolsRequestSchema, async () => {
