@@ -30,7 +30,18 @@ function getTools(): Tool[] {
     },
     {
       name: 'huntress_users_create',
-      description: 'Create a membership (invite a user).',
+      description:
+        '⚠ HIGH-IMPACT. Creates a membership (invites a user) and grants them the specified ' +
+        'permission level — including potentially Admin or Security Engineer privileges. ' +
+        'Reversible by deleting the membership. ' +
+        'Confirm with the user before invoking.',
+      annotations: {
+        title: 'Invite user / grant access (high-impact)',
+        readOnlyHint: false,
+        destructiveHint: true,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
       inputSchema: {
         type: 'object' as const,
         properties: {
@@ -45,7 +56,17 @@ function getTools(): Tool[] {
     },
     {
       name: 'huntress_users_update',
-      description: 'Update membership permissions.',
+      description:
+        '⚠ HIGH-IMPACT. Updates a membership\'s permission level, which can grant or revoke ' +
+        'Admin, Security Engineer, or other privileged roles. Reversible by setting permissions ' +
+        'back. Confirm with the user before invoking.',
+      annotations: {
+        title: 'Update user permissions (high-impact)',
+        readOnlyHint: false,
+        destructiveHint: true,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
       inputSchema: {
         type: 'object' as const,
         properties: {
@@ -57,7 +78,17 @@ function getTools(): Tool[] {
     },
     {
       name: 'huntress_users_delete',
-      description: 'Delete a membership.',
+      description:
+        '⚠ DESTRUCTIVE — IRREVERSIBLE. Permanently deletes a user membership and removes ' +
+        'their access to the organization. This action cannot be undone. ' +
+        'Confirm with the user before invoking.',
+      annotations: {
+        title: 'Delete user membership (irreversible)',
+        readOnlyHint: false,
+        destructiveHint: true,
+        idempotentHint: false,
+        openWorldHint: true,
+      },
       inputSchema: {
         type: 'object' as const,
         properties: { id: { type: 'number', description: 'Membership ID' } },
