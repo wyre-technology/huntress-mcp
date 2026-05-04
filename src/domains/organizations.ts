@@ -27,7 +27,18 @@ function getTools(): Tool[] {
     },
     {
       name: 'huntress_organizations_create',
-      description: 'Create a new organization.',
+      description:
+        '⚠ HIGH-IMPACT. Creates a new organization in Huntress, which provisions tenant ' +
+        'scope for agents, users, and security policies. Reversible via delete, but creation ' +
+        'is visible to operators and may trigger downstream automations. ' +
+        'Confirm with the user before invoking.',
+      annotations: {
+        title: 'Create organization (high-impact)',
+        readOnlyHint: false,
+        destructiveHint: true,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
       inputSchema: {
         type: 'object' as const,
         properties: {
@@ -39,7 +50,18 @@ function getTools(): Tool[] {
     },
     {
       name: 'huntress_organizations_update',
-      description: 'Update an organization.',
+      description:
+        '⚠ HIGH-IMPACT. Updates an organization\'s name, key, or report recipients. Changing ' +
+        'the key affects agent grouping; changing report recipients alters who receives ' +
+        'security reports. Reversible by reverting the fields. ' +
+        'Confirm with the user before invoking.',
+      annotations: {
+        title: 'Update organization (high-impact)',
+        readOnlyHint: false,
+        destructiveHint: true,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
       inputSchema: {
         type: 'object' as const,
         properties: {
@@ -53,7 +75,17 @@ function getTools(): Tool[] {
     },
     {
       name: 'huntress_organizations_delete',
-      description: 'Delete an organization.',
+      description:
+        '⚠ DESTRUCTIVE — IRREVERSIBLE. Permanently deletes an organization and all of its ' +
+        'associated data, agents, and security settings. This action cannot be undone. ' +
+        'Confirm with the user before invoking.',
+      annotations: {
+        title: 'Delete organization (irreversible)',
+        readOnlyHint: false,
+        destructiveHint: true,
+        idempotentHint: false,
+        openWorldHint: true,
+      },
       inputSchema: {
         type: 'object' as const,
         properties: { id: { type: 'number', description: 'Organization ID' } },
