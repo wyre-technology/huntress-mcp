@@ -66,6 +66,7 @@ export function createServer(): Server {
           text: JSON.stringify({
             connected: !!creds,
             domains: DOMAINS,
+            status: 'All tools available, no domain selected',
           }, null, 2),
         }],
       };
