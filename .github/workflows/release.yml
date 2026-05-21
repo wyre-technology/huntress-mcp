@@ -22,6 +22,9 @@ jobs:
     with:
       node-versions: '["18", "20", "22"]'
       lint-destructive-warnings: true
+      # Build the Dockerfile per-push (no push) — restores per-push build-validation
+      # after α-docker gates the release-pipeline docker job to release-only.
+      docker-smoke-test: true
     secrets: inherit
 
   release:
@@ -34,8 +37,8 @@ jobs:
       issues: write
       packages: read
     outputs:
-      version: ${{ steps.semrel.outputs.new-release-version }}
-      new-release-published: ${{ steps.semrel.outputs.new-release-published }}
+      version: ${{ steps.semrel.outputs.new_release_version }}
+      new_release_published: ${{ steps.semrel.outputs.new_release_published }}
 
     steps:
       - name: Checkout
@@ -62,25 +65,34 @@ jobs:
 
       - name: Release
         id: semrel
+        # Wrapper action emits GHA step outputs (new_release_published, new_release_version, etc.)
+        # that bare `npx semantic-release` does NOT — bare CLI returns a JS object only.
+        # SHA-pinned per CI-QW-3 (no @vN tag drift).
+        uses: cycjimmy/semantic-release-action@b12c8f6015dc215fe37bc154d4ad456dd3833c90 # v6.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
 
       - name: Pack and upload MCPB bundle
-        if: steps.semrel.outputs.new-release-published == 'true'
+        if: steps.semrel.outputs.new_release_published == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           npm install -g @anthropic-ai/mcpb
           npm run pack:mcpb
-          gh release upload "v${{ steps.semrel.outputs.new-release-version }}" huntress-mcp.mcpb \
+          gh release upload "v${{ steps.semrel.outputs.new_release_version }}" huntress-mcp.mcpb \
             --repo ${{ github.repository }} --clobber
 
   docker:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
     needs: [release]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Docker job is a publish-pipeline-conditional: only builds + pushes on actual release
+    # events. Per-push docker-build validation is preserved via the Test job's "Docker build
+    # smoke test" step (enabled by `docker-smoke-test: true` in the test job's with-block above
+    # — it was off by default before this PR, so α-docker is paired with enabling smoke). Gating
+    # here also prevents the "Resolve release version" step from tripping its empty-version check
+    # when no release was published this run.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.release.outputs.new_release_published == 'true'
     permissions:
       contents: read
       packages: write
@@ -228,7 +240,7 @@ jobs:
     name: Publish to MCP Registry
     runs-on: ubuntu-latest
     needs: [release, docker]
-    if: needs.release.outputs.new-release-published == 'true'
+    if: needs.release.outputs.new_release_published == 'true'
     permissions:
       id-token: write
       contents: read
