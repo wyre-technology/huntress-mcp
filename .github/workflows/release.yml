@@ -34,8 +34,8 @@ jobs:
       issues: write
       packages: read
     outputs:
-      version: ${{ steps.version.outputs.version }}
-      released: ${{ steps.version.outputs.released }}
+      version: ${{ steps.semrel.outputs.new_release_version }}
+      new_release_published: ${{ steps.semrel.outputs.new_release_published }}
 
     steps:
       - name: Checkout
@@ -61,40 +61,41 @@ jobs:
         run: npm run build
 
       - name: Release
-        id: release
+        id: semrel
+        # Wrapper action emits GHA step outputs (new_release_published, new_release_version, etc.)
+        # that bare `npx semantic-release` does NOT — bare CLI returns a JS object only.
+        # SHA-pinned per CI-QW-3 (no @vN tag drift).
+        uses: cycjimmy/semantic-release-action@b12c8f6015dc215fe37bc154d4ad456dd3833c90 # v6.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
-
-      - name: Get released version
-        id: version
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          # Check if a release was actually created for this version
-          if gh release view "v$VERSION" --repo ${{ github.repository }} &>/dev/null; then
-            echo "released=true" >> $GITHUB_OUTPUT
-          else
-            echo "released=false" >> $GITHUB_OUTPUT
-          fi
 
       - name: Pack and upload MCPB bundle
-        if: steps.version.outputs.released == 'true'
+        if: steps.semrel.outputs.new_release_published == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           npm install -g @anthropic-ai/mcpb
           npm run pack:mcpb
-          gh release upload "v${{ steps.version.outputs.version }}" huntress-mcp.mcpb \
+          gh release upload "v${{ steps.semrel.outputs.new_release_version }}" huntress-mcp.mcpb \
             --repo ${{ github.repository }} --clobber
 
   docker:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
     needs: [release]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Docker job is a publish-pipeline-conditional: only builds + pushes on actual release
+    # events. Gating here also prevents the "Resolve release version" step from tripping its
+    # empty-version check when no release was published this run.
+    #
+    # VISIBILITY-DISTINCT GAP — INTENTIONALLY NAMED, NOT SILENTLY ABSORBED:
+    # With this gate, no-bump pushes have ZERO per-push docker-build signal. Pairing with the
+    # reusable workflow's `docker-smoke-test` step would restore that signal, but the smoke
+    # step uses BuildKit `--mount=type=secret` and this Dockerfile uses `COPY .npmrc + ARG`
+    # (incompatible patterns), so enabling smoke-test fails on private @wyre-technology/node-*
+    # auth. Fleet-wide Dockerfile pattern conversion + smoke-test enable is tracked as a
+    # HIGH-priority follow-up task: cortextos task_1779381483476_50872880. Until that lands,
+    # the per-push docker-build coverage gap is bounded by that task, not silently absorbed.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.release.outputs.new_release_published == 'true'
     permissions:
       contents: read
       packages: write
@@ -242,7 +243,7 @@ jobs:
     name: Publish to MCP Registry
     runs-on: ubuntu-latest
     needs: [release, docker]
-    if: needs.release.outputs.released == 'true'
+    if: needs.release.outputs.new_release_published == 'true'
     permissions:
       id-token: write
       contents: read
