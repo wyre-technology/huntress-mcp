@@ -13,12 +13,22 @@ function startHttpServer(): void {
     const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
 
     if (url.pathname === '/health') {
+      // /health is container LIVENESS, not credential-readiness. In gateway
+      // mode, credentials arrive per-request via X-Huntress-* headers, not
+      // at startup — so checking `getCredentials()` here would always 503
+      // the container and the WYRE vendor-monitor would false-red Huntress
+      // permanently. Liveness is "the server is accepting traffic"; the
+      // credentials state is reported as informational only.
+      // Standalone (non-gateway) mode also returns 200 — if the operator
+      // ran the server with no creds, that's their config problem and the
+      // first tool call will surface it clearly; conflating that with
+      // liveness causes more harm than the 503 prevents.
       const creds = getCredentials();
-      const statusCode = creds ? 200 : 503;
-      res.writeHead(statusCode, { 'Content-Type': 'application/json' });
+      res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
-        status: creds ? 'ok' : 'degraded',
+        status: 'ok',
         transport: 'http',
+        mode: isGatewayMode ? 'gateway' : 'standalone',
         credentials: { configured: !!creds },
         timestamp: new Date().toISOString(),
       }));
