@@ -31,6 +31,9 @@ RUN rm -f .npmrc
 # Production stage
 FROM node:22-alpine AS production
 
+# Pull latest Alpine package fixes (e.g. OpenSSL) even when the base layer is cached
+RUN apk -U upgrade --no-cache
+
 # Create a non-root user for security
 RUN addgroup -g 1001 -S huntress && \
     adduser -S huntress -u 1001 -G huntress
