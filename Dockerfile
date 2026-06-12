@@ -46,6 +46,10 @@ COPY --from=builder /app/node_modules ./node_modules
 # Create logs directory
 RUN mkdir -p /app/logs && chown -R huntress:huntress /app
 
+# Remove bundled npm/npx from the runtime image (not needed at runtime; CMD runs node directly).
+# Eliminates Trivy findings against npm's bundled dependencies in the base image.
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
+
 # Switch to non-root user
 USER huntress
 
