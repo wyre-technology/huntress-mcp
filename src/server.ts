@@ -4,8 +4,23 @@ import { getNavigationTools, DOMAINS } from './domains/navigation.js';
 import { getDomainHandler } from './domains/index.js';
 import { getCredentials } from './utils/client.js';
 import { logger } from './utils/logger.js';
-import type { DomainName } from './utils/types.js';
+import type { CallToolResult, DomainName } from './utils/types.js';
 import { registerPromptHandlers } from './prompts.js';
+
+// Belt-and-braces guard: never emit a content block whose text is not a
+// string. JSON.stringify(undefined) returns the VALUE undefined, so any
+// handler that stringifies a missing SDK response would otherwise emit
+// {type: 'text', text: undefined} — which fails MCP client validation
+// (Zod invalid_union on content[0]) on every call.
+function sanitizeResult(toolName: string, result: CallToolResult): CallToolResult {
+  for (const block of result.content) {
+    if (typeof block.text !== 'string') {
+      logger.warn('Coerced non-string content text to "null"', { tool: toolName, textType: typeof block.text });
+      block.text = 'null';
+    }
+  }
+  return result;
+}
 
 export function createServer(): Server {
   const server = new Server(
@@ -78,7 +93,8 @@ export function createServer(): Server {
       const toolNames = handler.getTools().map(t => t.name);
       if (toolNames.includes(name)) {
         try {
-          return await handler.handleCall(name, (args || {}) as Record<string, unknown>, extra);
+          const result = await handler.handleCall(name, (args || {}) as Record<string, unknown>, extra);
+          return sanitizeResult(name, result);
         } catch (error) {
           logger.error('Tool call failed', { tool: name, error: (error as Error).message });
           return {
