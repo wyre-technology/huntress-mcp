@@ -47,8 +47,15 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Configure npm secret for Docker build
+        run: |
+          {
+            echo "@wyre-technology:registry=https://npm.pkg.github.com"
+            echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}"
+          } > /tmp/npmrc.docker
+
       - name: Test Docker build
-        run: docker build --build-arg NODE_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }} -t huntress-mcp:test .
+        run: docker build --secret id=npmrc,src=/tmp/npmrc.docker -t huntress-mcp:test .
 
   code-quality:
     name: Code Quality
